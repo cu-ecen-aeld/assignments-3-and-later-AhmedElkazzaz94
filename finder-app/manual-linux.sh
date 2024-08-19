@@ -35,6 +35,10 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
     git checkout ${KERNEL_VERSION}
 
     # TODO: Add your kernel build steps here
+    echo "Configuring kernel"
+    make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} defconfig
+    echo "Building kernel"
+    make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} -j$(nproc)
 fi
 
 echo "Adding the Image in outdir"
@@ -48,7 +52,7 @@ then
 fi
 
 # TODO: Create necessary base directories
-
+mkdir -p "${OUTDIR}/rootfs"
 cd "$OUTDIR"
 if [ ! -d "${OUTDIR}/busybox" ]
 then
@@ -61,20 +65,48 @@ else
 fi
 
 # TODO: Make and install busybox
+make distclean
+make defconfig
+make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE}
+make CONFIG_PREFIX="${OUTDIR}/rootfs" ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} install
 
 echo "Library dependencies"
 ${CROSS_COMPILE}readelf -a bin/busybox | grep "program interpreter"
 ${CROSS_COMPILE}readelf -a bin/busybox | grep "Shared library"
 
+
 # TODO: Add library dependencies to rootfs
+SYSROOT=$(${CROSS_COMPILE}gcc -print-sysroot)
+cp -aL ${SYSROOT}/lib/ld-linux-aarch64.so.1 ${OUTDIR}/rootfs/lib/
+cp -aL ${SYSROOT}/lib64/ld-2.31.so ${OUTDIR}/rootfs/lib64/
+cp -aL ${SYSROOT}/lib64/libm.so.6 ${OUTDIR}/rootfs/lib64/
+cp -aL ${SYSROOT}/lib64/libresolv.so.2 ${OUTDIR}/rootfs/lib64/
+cp -aL ${SYSROOT}/lib64/libc.so.6 ${OUTDIR}/rootfs/lib64/
 
 # TODO: Make device nodes
-
+sudo mknod -m 666 ${OUTDIR}/rootfs/dev/null c 1 3
+sudo mknod -m 600 ${OUTDIR}/rootfs/dev/console c 5 1
 # TODO: Clean and build the writer utility
+echo "Cross-compiling and copying the writer utility"
+cd ${FINDER_APP_DIR}
+make clean
+make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE}
+cp writer ${OUTDIR}/rootfs/home/
 
 # TODO: Copy the finder related scripts and executables to the /home directory
 # on the target rootfs
 
+echo "Copying finder related scripts and executables"
+cp ${FINDER_APP_DIR}/finder.sh ${OUTDIR}/rootfs/home/
+cp ${FINDER_APP_DIR}/conf/username.txt ${OUTDIR}/rootfs/home/
+cp ${FINDER_APP_DIR}/conf/assignment.txt ${OUTDIR}/rootfs/home/
+cp ${FINDER_APP_DIR}/finder-test.sh ${OUTDIR}/rootfs/home/
+cp ${FINDER_APP_DIR}/autorun-qemu.sh ${OUTDIR}/rootfs/home/
+sed -i 's|../conf/assignment.txt|/home/assignment.txt|' ${OUTDIR}/rootfs/home/finder-test.sh
+
 # TODO: Chown the root directory
+sudo chown -R root:root ${OUTDIR}/rootfs
 
 # TODO: Create initramfs.cpio.gz
+cd ${OUTDIR}/rootfs
+find . | cpio -H newc -ov --owner root:root | gzip > ${OUTDIR}/initramfs.cpio.gz
