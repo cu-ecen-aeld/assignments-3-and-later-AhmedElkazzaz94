@@ -63,7 +63,7 @@ mkdir -p "${OUTDIR}/rootfs/lib"
 mkdir -p "${OUTDIR}/rootfs/lib64"
 mkdir -p "${OUTDIR}/rootfs/dev"
 mkdir -p "${OUTDIR}/rootfs/etc"
-mkdir -p "${OUTDIR}/rootfs/home"
+mkdir -p "${OUTDIR}/rootfs/home/conf"
 mkdir -p "${OUTDIR}/rootfs/sys"
 mkdir -p "${OUTDIR}/rootfs/proc"
 mkdir -p "${OUTDIR}/rootfs/tmp"
@@ -105,7 +105,7 @@ ${CROSS_COMPILE}readelf -a bin/busybox | grep "Shared library"
 export SYSROOT=$(${CROSS_COMPILE}gcc -print-sysroot)
 
 sudo cp -aL ${SYSROOT}/lib/ld-linux-aarch64.so.1 ${OUTDIR}/rootfs/lib/
-#sudo cp -aL ${SYSROOT}/lib64/libm.so.6 ${OUTDIR}/rootfs/lib64/
+sudo cp -aL ${SYSROOT}/lib64/libm.so.6 ${OUTDIR}/rootfs/lib64/
 sudo cp -aL ${SYSROOT}/lib64/libresolv.so.2 ${OUTDIR}/rootfs/lib64/
 sudo cp -aL ${SYSROOT}/lib64/libc.so.6 ${OUTDIR}/rootfs/lib64/
 
@@ -122,12 +122,13 @@ cp writer ${OUTDIR}/rootfs/home/
 # TODO: Copy the finder related scripts and executables to the /home directory
 # on the target rootfs
 
+
 echo "Copying finder related scripts and executables"
-cp ${FINDER_APP_DIR}/finder.sh ${OUTDIR}/rootfs/home/
-cp ${FINDER_APP_DIR}/conf/username.txt ${OUTDIR}/rootfs/home/
-cp ${FINDER_APP_DIR}/conf/assignment.txt ${OUTDIR}/rootfs/home/
-cp ${FINDER_APP_DIR}/finder-test.sh ${OUTDIR}/rootfs/home/
-cp ${FINDER_APP_DIR}/autorun-qemu.sh ${OUTDIR}/rootfs/home/
+cp finder.sh ${OUTDIR}/rootfs/home/
+cp -f conf/username.txt ${OUTDIR}/rootfs/home
+cp -f conf/assignment.txt ${OUTDIR}/rootfs/home
+cp finder-test.sh ${OUTDIR}/rootfs/home/
+cp autorun-qemu.sh ${OUTDIR}/rootfs/home/
 #sed -i 's|../conf/assignment.txt|/home/assignment.txt|' ${OUTDIR}/rootfs/home/finder-test.sh
 
 # TODO: Chown the root directory
@@ -136,4 +137,5 @@ sudo chown -R root:root *
 
 # TODO: Create initramfs.cpio.gz
 
-find . | cpio -H newc -ov --owner root:root | gzip > ${OUTDIR}/initramfs.cpio
+find . | cpio -H newc -ov --owner root:root > ${OUTDIR}/initramfs.cpio
+gzip -f ${OUTDIR}/initramfs.cpio
