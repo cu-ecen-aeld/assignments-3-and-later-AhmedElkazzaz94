@@ -125,12 +125,13 @@ cp writer ${OUTDIR}/rootfs/home/
 
 echo "Copying finder related scripts and executables"
 cp finder.sh ${OUTDIR}/rootfs/home/
-cp -f conf/username.txt ${OUTDIR}/rootfs/home
-cp -f conf/assignment.txt ${OUTDIR}/rootfs/home
+cp -r '../conf' "${OUTDIR}/rootfs/home"
 cp finder-test.sh ${OUTDIR}/rootfs/home/
 cp autorun-qemu.sh ${OUTDIR}/rootfs/home/
-#sed -i 's|../conf/assignment.txt|/home/assignment.txt|' ${OUTDIR}/rootfs/home/finder-test.sh
-
+sudo chmod +x ${OUTDIR}/rootfs/home/finder.sh
+sudo chmod +x ${OUTDIR}/rootfs/home/autorun-qemu.sh
+sudo chmod +x ${OUTDIR}/rootfs/home/finder-test.sh
+sudo chmod +x ${OUTDIR}/rootfs/home/writer
 # TODO: Chown the root directory
 cd ${OUTDIR}/rootfs
 sudo chown -R root:root *
