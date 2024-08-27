@@ -148,3 +148,28 @@
 ==171162== All heap blocks were freed -- no leaks are possible
 ==171162== 
 ==171162== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==171254== 
+==171254== HEAP SUMMARY:
+==171254==     in use at exit: 0 bytes in 0 blocks
+==171254==   total heap usage: 23 allocs, 23 frees, 38,768 bytes allocated
+==171254== 
+==171254== All heap blocks were freed -- no leaks are possible
+==171254== 
+==171254== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+--171307-- REDIR: 0x4a03cb0 (libc.so.6:__strcpy_avx2) redirected to 0x484ee60 (strcpy)
+==171307== 
+==171307== HEAP SUMMARY:
+==171307==     in use at exit: 0 bytes in 0 blocks
+==171307==   total heap usage: 23 allocs, 23 frees, 38,768 bytes allocated
+==171307== 
+==171307== All heap blocks were freed -- no leaks are possible
+==171307== 
+==171307== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==171000== 
+==171000== HEAP SUMMARY:
+==171000==     in use at exit: 0 bytes in 0 blocks
+==171000==   total heap usage: 20 allocs, 20 frees, 29,987 bytes allocated
+==171000== 
+==171000== All heap blocks were freed -- no leaks are possible
+==171000== 
+==171000== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
